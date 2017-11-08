@@ -15,6 +15,7 @@ import Data.List
     Must go through the expression, searching for the an '(', then do a takeWhile != '(' || ')'. If it finds an
     '(', it must recursively call itself to turn the content of the innermost () to the RPN. Then it must do the 
     same with the supported operations, in the same precedence order.
+    test
 -}
 toRPN :: String -> String
 toRPN [] = []
