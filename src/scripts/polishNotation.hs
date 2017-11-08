@@ -21,8 +21,16 @@ import Data.List
 toRPN :: String -> String
 toRPN [] = []
 toRPN = foldl findSubExpr [] . words
-    where   findSubExpr (x:xs) "(" = toRPN . takeWhile (/= "(" || /= ")") xs {-TODO think carefully about this predicate-}
-            findSubExpr xs numberString= numberString:xs
+    where   findSubExpr (x:xs) "(" = takeWhileEither (/="(") (toRPN xs) (/=")") (\xs -> xs) xs
+            findSubExpr xs numberString = numberString:xs {-Under construction-}
+
+takeWhileEither :: (a -> Bool) -> ([a] -> [a]) -> (a -> Bool) -> ([a] -> [a]) -> [a] -> [a]
+takeWhileEither _ _ _ _ [] = []
+takeWhileEither p f p' f' list@(x:xs) = foldr (\x acc -> 
+                                                        if (not $ p x) && p' x
+                                                        then f $ takeWhile p list
+                                                        else if not $ p' x
+                                                        then f' $ takeWhile p' list else acc) [] list
   
 solveRPN :: String -> Float  
 solveRPN = head . foldl foldingFunction [] . words  
