@@ -1,6 +1,6 @@
 {-
     @Author: Felipe Rabelo
-    @Date: Nov 8 2017
+    @Date: Nov 10 2017
 -}
 
 secondDegree :: (Floating a) => a -> a -> a -> (a, a)
@@ -16,3 +16,7 @@ takeWhileEither p f p' f' list@(x:xs) = foldr (\x acc ->
                                                         then f $ takeWhile p list
                                                         else if not $ p' x
                                                         then f' $ takeWhile p' list else acc) [] list
+                                                        
+foldFunc :: String -> String -> String
+foldFunc acc@"" ele = acc ++ ele
+foldFunc acc@(x:xs) ele = acc ++ ele

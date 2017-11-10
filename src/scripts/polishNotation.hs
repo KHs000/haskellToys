@@ -1,7 +1,7 @@
 {-
     @Author: Felipe Rabelo
     @Date: Nov 7 2017
-    @Last: Nov 9 2017
+    @Last: Nov 10 2017
 -}
 
 {-
@@ -12,10 +12,12 @@
 
 import Data.List
 
-toRPN :: [String] -> [String]
-toRPN = reverse . foldl findSubExpr []
-    where   findSubExpr (x:xs) "(" = takeWhileEither (/="(") (\xs -> (toRPN xs) ++ xs) (/=")") (\xs -> xs) xs
-            findSubExpr xs numStr = if numStr == ")" then xs else numStr:xs
+toRPN :: [String] -> String
+toRPN = foldl findSubExpr ""
+    where   findSubExpr "" "(" = ""
+            findSubExpr "" numStr = "" ++ numStr
+            findSubExpr acc@(x:xs) "(" = takeWhileEither (/='(') (\xs -> acc ++ (toRPN $ words xs)) (/=')') (\acc -> acc) xs
+            findSubExpr acc numStr = if numStr == ")" then acc else acc ++ " " ++ numStr
 
 takeWhileEither :: (a -> Bool) -> ([a] -> [a]) -> (a -> Bool) -> ([a] -> [a]) -> [a] -> [a]
 takeWhileEither _ _ _ _ [] = []
