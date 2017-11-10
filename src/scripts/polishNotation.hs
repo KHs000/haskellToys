@@ -12,12 +12,12 @@
 
 import Data.List
 
-toRPN :: [String] -> String
-toRPN = foldl findSubExpr ""
-    where   findSubExpr "" "(" = ""
-            findSubExpr "" numStr = "" ++ numStr
-            findSubExpr acc@(x:xs) "(" = takeWhileEither (/='(') (\xs -> acc ++ (toRPN $ words xs)) (/=')') (\acc -> acc) xs
-            findSubExpr acc numStr = if numStr == ")" then acc else acc ++ " " ++ numStr
+toRPN :: String -> [String] -> String
+toRPN expr = foldl findSubExpr expr
+    where   findSubExpr acc@"" "(" = acc ++ expr
+            findSubExpr acc@"" numStr = acc ++ expr ++ numStr
+            findSubExpr acc@(x:xs) "(" = acc ++ expr ++ takeWhileEither (/='(') (\xs -> toRPN expr $ words xs) (/=')') (\acc -> acc) xs
+            findSubExpr acc numStr = if numStr == ")" then acc ++ expr else acc ++ expr ++ " " ++ numStr
 
 takeWhileEither :: (a -> Bool) -> ([a] -> [a]) -> (a -> Bool) -> ([a] -> [a]) -> [a] -> [a]
 takeWhileEither _ _ _ _ [] = []
