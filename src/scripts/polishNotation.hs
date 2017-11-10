@@ -6,7 +6,7 @@
 
 {-
     Example expression: "( 20 - ( 4 / 2 * ( 1 + 4 ) ) + ( 1 - 1 ) ) / 5"
-    The above expression must resolve to the RPN: "20 1 4 + 4 2 / * - 1 1 - + 5 /"
+    The above expression must resolve to the RPN: "20 4 2 / 1 4 + * - 1 1 - + 5 /"
     Which will resolve to 2 using the solveRPN function
 -}
 
@@ -17,7 +17,7 @@ toRPN expr = foldl findSubExpr expr
     where   findSubExpr acc@"" "(" = acc ++ expr
             findSubExpr acc@"" numStr = acc ++ expr ++ numStr
             findSubExpr acc@(x:xs) "(" = acc ++ expr ++ takeWhileEither (/='(') (\xs -> toRPN expr $ words xs) (/=')') (\acc -> acc) xs
-            findSubExpr acc@(x:xs) operator@"*" = xs
+            findSubExpr acc@(x:xs) operator@"*" = xs {-TODO Fix the operator insertion-}
             findSubExpr acc numStr = if numStr == ")" then acc ++ expr else acc ++ expr ++ " " ++ numStr
 
 takeWhileEither :: (a -> Bool) -> ([a] -> [a]) -> (a -> Bool) -> ([a] -> [a]) -> [a] -> [a]
