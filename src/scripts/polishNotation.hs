@@ -17,6 +17,7 @@ toRPN expr = foldl findSubExpr expr
     where   findSubExpr acc@"" "(" = acc ++ expr
             findSubExpr acc@"" numStr = acc ++ expr ++ numStr
             findSubExpr acc@(x:xs) "(" = acc ++ expr ++ takeWhileEither (/='(') (\xs -> toRPN expr $ words xs) (/=')') (\acc -> acc) xs
+            findSubExpr acc@(x:xs) operator@"*" = xs
             findSubExpr acc numStr = if numStr == ")" then acc ++ expr else acc ++ expr ++ " " ++ numStr
 
 takeWhileEither :: (a -> Bool) -> ([a] -> [a]) -> (a -> Bool) -> ([a] -> [a]) -> [a] -> [a]
