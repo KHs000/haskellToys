@@ -8,7 +8,7 @@
     Those are my solutions for the 99 problems to be solved in haskell available in
     https://wiki.haskell.org/H-99:_Ninety-Nine_Haskell_Problems
     
-    Currently solving problem: 7
+    Currently solving problem: 9
 -}
 
 {- Imports used -}
@@ -135,3 +135,4 @@ compress' = map head . DL.group
                  'a', 'd', 'e', 'e', 'e', 'e']
     ["aaaa","b","cc","aa","d","eeee"]
 -}
+pack :: Eq a => [a] => [a]
