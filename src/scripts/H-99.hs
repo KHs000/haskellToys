@@ -11,6 +11,12 @@
     Currently solving problem: 7
 -}
 
+{- Imports used -}
+import qualified Data.List as DL
+
+{- Data types created -}
+data NestedList a = Elem a | List [NestedList a]
+
 {-
     * Problem 1 -> Find the last element of a list.
     Example in Haskell:
@@ -19,12 +25,12 @@
     4
 -}
 myLast :: [a] -> Maybe a
-myLast [] = Nothing
-myLast [x] = Just x
+myLast []     = Nothing
+myLast [x]    = Just x
 myLast (_:xs) = myLast xs
 
 myLast' :: [a] -> a
-myLast' xs = last xs
+myLast' = last
 
 {-
     * Problem 2 -> Find the last but one element of a list.
@@ -34,7 +40,7 @@ myLast' xs = last xs
     3
 -}
 myButLast :: [a] -> Maybe a
-myButLast [] = Nothing
+myButLast []  = Nothing
 myButLast [x] = Nothing
 myButLast (x:xs)
     | length xs == 1 = Just x
@@ -90,10 +96,7 @@ isPalindrome xs = foldr (\bool isP -> bool && isP) True . zipWith (\x y -> x == 
 
 {-
     * Problem 7 -> Flatten a nested list structure. Transform a list, possibly holding lists as elements
-    into a `flat' list by replacing each list with its elements (recursively).
-    Example:
-    (my-flatten '(a (b (c d) e)))
-    (A B C D E)
+    into a `flat` list by replacing each list with its elements (recursively).
     Example in Haskell:
 
     We have to define a new data type, because lists in Haskell are homogeneous.
@@ -104,4 +107,31 @@ isPalindrome xs = foldr (\bool isP -> bool && isP) True . zipWith (\x y -> x == 
     *Main> flatten (List [Elem 1, List [Elem 2, List [Elem 3, Elem 4], Elem 5]])
     [1,2,3,4,5]
 -}
-data NestedList a = Elem a | List [NestedList a] deriving (Show)
+flatten :: NestedList a -> [a]
+flatten (Elem x)  = x:[]
+flatten (List xs) = concatMap flatten xs
+
+{-
+    * Problem 8 -> Eliminate consecutive duplicates of list elements.If a list contains repeated
+    elements they should be replaced with a single copy of the element. The order of the elements
+    should not be changed.
+    Example in Haskell:
+
+    > compress "aaaabccaadeeee"
+    "abcade"
+-}
+compress :: Eq a => [a] -> [a]
+compress xs  = foldr (\x acc -> if head acc == x then acc else x:acc) [last xs] xs
+
+compress' :: Eq a => [a] -> [a]
+compress' = map head . DL.group
+
+{-
+    * Problem 9 -> Pack consecutive duplicates of list elements into sublists. If a list contains 
+    repeated elements they should be placed in separate sublists.
+    Example in Haskell:
+
+    *Main> pack ['a', 'a', 'a', 'a', 'b', 'c', 'c', 'a', 
+                 'a', 'd', 'e', 'e', 'e', 'e']
+    ["aaaa","b","cc","aa","d","eeee"]
+-}
