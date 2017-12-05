@@ -90,7 +90,7 @@ myReverse = reverse
     *Main> isPalindrome [1,2,3]
     False
 -}
-isPalindrome :: (Eq a) => [a] -> Bool
+isPalindrome :: Eq a => [a] -> Bool
 isPalindrome [] = True
 isPalindrome xs = foldr (\bool isP -> bool && isP) True . zipWith (\x y -> x == y) xs $ reverse xs
 
@@ -135,4 +135,5 @@ compress' = map head . DL.group
                  'a', 'd', 'e', 'e', 'e', 'e']
     ["aaaa","b","cc","aa","d","eeee"]
 -}
-pack :: Eq a => [a] => [a]
+pack :: [String] -> [String]
+pack list@(x:xs) = DL.intercalate "" $ takeWhile (== x) list : [] {-Work in progess-}
