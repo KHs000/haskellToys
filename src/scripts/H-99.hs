@@ -1,7 +1,7 @@
 {-
     @Author: Felipe Rabelo
     @Date: Nov 30 2017
-    @Last: Dez 04 2017
+    @Last: Dez 13 2017
 -}
 
 {-
@@ -121,7 +121,7 @@ flatten (List xs) = concatMap flatten xs
     "abcade"
 -}
 compress :: Eq a => [a] -> [a]
-compress xs  = foldr (\x acc -> if head acc == x then acc else x:acc) [last xs] xs
+compress xs = foldr (\x acc -> if head acc == x then acc else x:acc) [last xs] xs
 
 compress' :: Eq a => [a] -> [a]
 compress' = map head . DL.group
@@ -135,5 +135,5 @@ compress' = map head . DL.group
                  'a', 'd', 'e', 'e', 'e', 'e']
     ["aaaa","b","cc","aa","d","eeee"]
 -}
-pack :: [String] -> [String]
-pack list@(x:xs) = DL.intercalate "" $ takeWhile (== x) list : [] {-Work in progess-}
+pack :: [Char] -> [String]
+pack (x:xs) = map takeWhile (== x) {-Work in progess-}
