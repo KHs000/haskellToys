@@ -8,7 +8,7 @@
     Those are my solutions for the 99 problems to be solved in haskell available in
     https://wiki.haskell.org/H-99:_Ninety-Nine_Haskell_Problems
     
-    Currently solving problem: 9
+    Currently solving problem: 12
 -}
 
 {- Imports used -}
@@ -16,6 +16,7 @@ import qualified Data.List as DL
 
 {- Data types created -}
 data NestedList a = Elem a | List [NestedList a]
+data ListItem a = Single a | Multiple Int a deriving (Show)
 
 {-
     * Problem 1 -> Find the last element of a list.
@@ -131,9 +132,63 @@ compress' = map head . DL.group
     repeated elements they should be placed in separate sublists.
     Example in Haskell:
 
-    *Main> pack ['a', 'a', 'a', 'a', 'b', 'c', 'c', 'a', 
-                 'a', 'd', 'e', 'e', 'e', 'e']
+    *Main> pack ['a', 'a', 'a', 'a', 'b', 'c', 'c', 'a', 'a', 'd', 'e', 'e', 'e', 'e']
     ["aaaa","b","cc","aa","d","eeee"]
 -}
-pack :: [Char] -> [String]
-pack (x:xs) = map takeWhile (== x) {-Work in progess-}
+pack :: (Eq a) => [a] -> [[a]]
+pack []     = []
+pack (x:xs) = (x : takeWhile (== x) xs) : pack (dropWhile (== x) xs)
+
+{-
+    * Problem 10 -> Run-length encoding of a list. Use the result of problem P09 to implement 
+    the so-called run-length encoding data compression method. Consecutive duplicates of elements 
+    are encoded as lists (N E) where N is the number of duplicates of the element E.
+    Example in Haskell:
+
+    encode "aaaabccaadeeee"
+    [(4,'a'),(1,'b'),(2,'c'),(2,'a'),(1,'d'),(4,'e')]
+-}
+encode :: Eq a => [a] -> [(Int, a)]
+encode []          = []
+encode list@(x:xs) = (length $ takeWhile (== x) list, x) : encode (dropWhile (== x) xs)
+
+encode' ::Eq a => [a] -> [(Int, a)]
+encode' xs = map (\x -> (length x,head x)) (DL.group xs)
+
+encode'' :: Eq a => [a] -> [(Int, a)]
+encode'' = map (\x -> (length x, head x)) . DL.group
+
+{-
+    * Problem 11 -> Modified run-length encoding. Modify the result of problem 10 in such a way
+    that if an element has no duplicates it is simply copied into the result list. Only elements 
+    with duplicates are transferred as (N E) lists.
+    Example in Haskell:
+
+    P11> encodeModified "aaaabccaadeeee"
+    [Multiple 4 'a',Single 'b',Multiple 2 'c', Multiple 2 'a',Single 'd',Multiple 4 'e']
+-}
+encodeModified :: Eq a => [a] -> [ListItem a]
+encodeModified = map (\x -> resolveElement (length x) (head x)) . DL.group
+    where 
+        resolveElement 1 x = Single x
+        resolveElement n x = Multiple n x
+
+encodeModified' :: Eq a => [a] -> [ListItem a]
+encodeModified' = map encodeHelper . encode
+    where
+      encodeHelper (1, x) = Single x
+      encodeHelper (n, x) = Multiple n x
+
+{-
+    * Problem 12 -> Decode a run-length encoded list. Given a run-length code list generated as 
+    specified in problem 11. Construct its uncompressed version.
+    Example in Haskell:
+    
+    P12> decodeModified [Multiple 4 'a',Single 'b',Multiple 2 'c',Multiple 2 'a',Single 'd',Multiple 4 'e']
+    "aaaabccaadeeee"
+-}
+decodeModified :: [ListItem a] -> [a]
+decodeModified = foldl decodeHelper
+    where
+        decodeHelper acc (Single x) = acc ++ x
+        decodeHelper acc (Multiple n x) = acc ++ take n $ repeat x {-Work in progress-}
