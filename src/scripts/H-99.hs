@@ -1,14 +1,14 @@
 {-
     @Author: Felipe Rabelo
     @Date: Nov 30 2017
-    @Last: Dez 13 2017
+    @Last: Dez 19 2017
 -}
 
 {-
     Those are my solutions for the 99 problems to be solved in haskell available in
     https://wiki.haskell.org/H-99:_Ninety-Nine_Haskell_Problems
     
-    Currently solving problem: 12
+    Currently solving problem: 13
 -}
 
 {- Imports used -}
@@ -188,7 +188,19 @@ encodeModified' = map encodeHelper . encode
     "aaaabccaadeeee"
 -}
 decodeModified :: [ListItem a] -> [a]
-decodeModified = foldl decodeHelper
+decodeModified = concatMap decodeHelper
     where
-        decodeHelper acc (Single x) = acc ++ x
-        decodeHelper acc (Multiple n x) = acc ++ take n $ repeat x {-Work in progress-}
+        decodeHelper (Single x) = [x]
+        decodeHelper (Multiple n x) = replicate n x
+        
+{-
+    * Problem 13 -> Run-length encoding of a list (direct solution). Implement the so-called run-length
+    encoding data compression method directly. I.e. don't explicitly create the sublists containing the
+    duplicates, as in problem 9, but only count them. As in problem P11, simplify the result list by
+    replacing the singleton lists (1 X) by X.
+    Example in Haskell:
+
+    P13> encodeDirect "aaaabccaadeeee"
+    [Multiple 4 'a',Single 'b',Multiple 2 'c',Multiple 2 'a',Single 'd',Multiple 4 'e']
+-}
+encodeDirect :: [a] -> [ListItem a]
