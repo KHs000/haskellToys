@@ -1,14 +1,14 @@
 {-
     @Author: Felipe Rabelo
     @Date: Nov 30 2017
-    @Last: Dez 19 2017
+    @Last: Jan 02 2018
 -}
 
 {-
     Those are my solutions for the 99 problems to be solved in haskell available in
     https://wiki.haskell.org/H-99:_Ninety-Nine_Haskell_Problems
     
-    Currently solving problem: 13
+    Currently solving problem: 16
 -}
 
 {- Imports used -}
@@ -203,4 +203,60 @@ decodeModified = concatMap decodeHelper
     P13> encodeDirect "aaaabccaadeeee"
     [Multiple 4 'a',Single 'b',Multiple 2 'c',Multiple 2 'a',Single 'd',Multiple 4 'e']
 -}
-encodeDirect :: [a] -> [ListItem a]
+encodeDirect :: (Eq a) => [a] -> [ListItem a]
+encodeDirect [] = []
+encodeDirect (x:xs) = encodeDirect' 1 x xs
+encodeDirect' n y [] = [encodeElement n y]
+encodeDirect' n y (x:xs) | y == x    = encodeDirect' (n + 1) y xs
+                         | otherwise = encodeElement n y : (encodeDirect' 1 x xs)
+encodeElement 1 y = Single y
+encodeElement n y = Multiple n y
+
+{-
+    * Problem 14 -> Duplicate the elements of a list.
+    Example in Haskell:
+
+    > dupli [1, 2, 3]
+    [1,1,2,2,3,3]
+-}
+dupli :: [a] -> [a]
+dupli = foldl (\acc x -> acc ++ replicate 2 x) []
+
+dupli' :: [a] -> [a]
+dupli' = concatMap (replicate 2)
+
+dupli'' :: [a] -> [a]
+dupli'' [] = []
+dupli'' (x:xs) = x:x:dupli'' xs
+
+dupli''' :: [a] -> [a]
+dupli''' list = concat [[x,x] | x <- list]
+
+{-
+    * Problem 15 -> Replicate the elements of a list a given number of times.
+    Example in Haskell:
+
+    > repli "abc" 3
+    "aaabbbccc"
+-}
+repli :: [a] -> Int -> [a]
+repli list n = concatMap (replicate n) list
+
+repli' :: [a] -> Int -> [a]
+repli' = flip $ concatMap . replicate
+
+repli'' :: [a] -> Int -> [a]
+repli'' xs n = xs >>= replicate n
+
+{-
+    * Problem 16 -> Drop every N'th element from a list.
+    Example in Haskell:
+
+    *Main> dropEvery "abcdefghik" 3
+    "abdeghk"
+-}
+dropEvery :: [a] -> Int -> [a]
+dropEvery list n = 
+
+testFunc :: [a] -> Int -> [Int]
+testFunc list n = take (length list) [x * i | x <- [n], i <- [1..]]
