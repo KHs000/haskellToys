@@ -257,4 +257,4 @@ repli'' xs n = xs >>= replicate n
     "abdeghk"
 -}
 dropEvery :: [a] -> Int -> [a]
-dropEvery list n = 
+dropEvery list n = V.concatMap (\x -> x) list
