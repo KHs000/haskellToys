@@ -13,6 +13,7 @@
 
 {- Imports used -}
 import qualified Data.List as DL
+import qualified Data.Vector as V
 
 {- Data types created -}
 data NestedList a = Elem a | List [NestedList a]
@@ -257,6 +258,3 @@ repli'' xs n = xs >>= replicate n
 -}
 dropEvery :: [a] -> Int -> [a]
 dropEvery list n = 
-
-testFunc :: [a] -> Int -> [Int]
-testFunc list n = take (length list) [x * i | x <- [n], i <- [1..]]
