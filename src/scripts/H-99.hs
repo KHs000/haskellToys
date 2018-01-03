@@ -8,7 +8,7 @@
     Those are my solutions for the 99 problems to be solved in haskell available in
     https://wiki.haskell.org/H-99:_Ninety-Nine_Haskell_Problems
     
-    Currently solving problem: 20
+    Currently solving problem: 21
 -}
 
 {- Imports used -}
@@ -336,4 +336,26 @@ rotate'' x y
 removeAt :: Int -> [a] -> (Maybe a, Maybe [a])
 removeAt _ [] = (Nothing, Nothing)
 removeAt 0 (x:xs) = (Just x, Just xs)
-removeAt n list = (Just list !! (n - 1), Just [x | (x, i) <- zip list [1..], i /= n])
+removeAt n list = (Just $ list !! (n - 1), Just [x | (x, i) <- zip list [1..], i /= n])
+
+removeAt' :: Int -> [a] -> (a, [a])
+removeAt' k xs = case back of
+        [] -> error "removeAt: index too large"
+        x:rest -> (x, front ++ rest)
+  where (front, back) = splitAt (k - 1) xs
+  
+removeAt'' :: Int -> [a] -> (a, [a])
+removeAt'' n xs = (xs !! (n - 1), take (n - 1) xs ++ drop n xs)
+
+{-
+    * Problem 21 -> Insert an element at a given position into a list.
+    Example in Haskell:
+
+    P21> insertAt 'X' "abcd" 2
+    "aXbcd"
+-}
+insertAt :: a -> [a] -> Int -> [a]
+insertAt e [] 0 = [e]
+insertAt _ [] _ = do error "insertAt: index too large"
+insertAt e (x:xs) 1 = e:x:xs
+insertAt e (x:xs) n = take (n - 1) xs ++ insertAt e xs (n - 1)
