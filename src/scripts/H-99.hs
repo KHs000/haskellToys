@@ -307,10 +307,21 @@ rotate [] _ = []
 rotate xs 0 = xs
 rotate xs n
     | n > 0 =
-        if n >= listLen then rotate xs (n - listLen)
+        if n >= listLen then rotate xs (n `mod` listLen)
         else drop n xs ++ take n xs
     | n < 0 =
-        if o >= listLen then rotate xs ((o - listLen) * (-1))
+        if o >= listLen then rotate xs (negate $ o `mod` listLen)
         else slice xs (listLen - o + 1) listLen ++ take (listLen - o) xs
     where listLen = length xs
           o = abs n
+          
+rotate' :: [a] -> Int -> [a]
+rotate' xs n = take len . drop (n `mod` len) . cycle $ xs
+    where len = length xs
+    
+rotate'' :: [a] -> Int -> [a]
+rotate'' [] _ = []
+rotate'' x 0 = x
+rotate'' x y
+  | y > 0 = rotate (tail x ++ [head x]) (y-1)
+  | otherwise = rotate (last x : init x) (y+1)
