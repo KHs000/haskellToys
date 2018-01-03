@@ -357,5 +357,5 @@ removeAt'' n xs = (xs !! (n - 1), take (n - 1) xs ++ drop n xs)
 insertAt :: a -> [a] -> Int -> [a]
 insertAt e [] 0 = [e]
 insertAt _ [] _ = do error "insertAt: index too large"
-insertAt e (x:xs) 1 = e:x:xs
-insertAt e (x:xs) n = take (n - 1) xs ++ insertAt e xs (n - 1)
+insertAt e list n = V.toList . V.take (n - 1) vector V.// [(n, e)] ++ V.drop n vector
+	where vector = V.fromList list
