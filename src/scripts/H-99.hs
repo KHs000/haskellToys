@@ -325,3 +325,15 @@ rotate'' x 0 = x
 rotate'' x y
   | y > 0 = rotate (tail x ++ [head x]) (y-1)
   | otherwise = rotate (last x : init x) (y+1)
+  
+{-
+    * Problem 20 -> Remove the K'th element from a list.
+    Example in Haskell:
+
+    *Main> removeAt 2 "abcd"
+    ('b',"acd")
+-}
+removeAt :: Int -> [a] -> (Maybe a, Maybe [a])
+removeAt _ [] = (Nothing, Nothing)
+removeAt 0 (x:xs) = (Just x, Just xs)
+removeAt n list = (Just list !! (n - 1), Just [x | (x, i) <- zip list [1..], i /= n])
