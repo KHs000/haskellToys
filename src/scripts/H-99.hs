@@ -257,4 +257,4 @@ repli'' xs n = xs >>= replicate n
     "abdeghk"
 -}
 dropEvery :: [a] -> Int -> [a]
-dropEvery list n = V.concatMap (\x -> x) list
+dropEvery list i = V.toList $ V.ifilter (\index e -> (index + 1) `mod` i /= 0) $ V.fromList list
