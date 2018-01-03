@@ -1,14 +1,14 @@
 {-
     @Author: Felipe Rabelo
     @Date: Nov 30 2017
-    @Last: Jan 02 2018
+    @Last: Jan 03 2018
 -}
 
 {-
     Those are my solutions for the 99 problems to be solved in haskell available in
     https://wiki.haskell.org/H-99:_Ninety-Nine_Haskell_Problems
     
-    Currently solving problem: 16
+    Currently solving problem: 20
 -}
 
 {- Imports used -}
@@ -257,4 +257,60 @@ repli'' xs n = xs >>= replicate n
     "abdeghk"
 -}
 dropEvery :: [a] -> Int -> [a]
-dropEvery list i = V.toList $ V.ifilter (\index e -> (index + 1) `mod` i /= 0) $ V.fromList list
+dropEvery list i = V.toList . V.ifilter (\index e -> (index + 1) `mod` i /= 0) $ V.fromList list
+
+{-
+    * Problem 17 -> Split a list into two parts; the length of the first part is given. Do not use any 
+    predefined predicates.
+    Example in Haskell:
+
+    *Main> split "abcdefghik" 3
+    ("abc", "defghik")
+-}
+split :: [a] -> Int -> ([a], [a])
+split [] _     = ([], [])
+split list 0   = ([], list)
+split (x:xs) n = ([x] ++ fst callable, snd callable)
+    where callable = split xs (n - 1)
+    
+split' :: [a] -> Int -> ([a], [a])
+split' (x:xs) n | n > 0 = let (f, l) = split xs (n - 1) in (x : f, l)
+split' xs _             = ([], xs)
+    
+{-
+    * Problem 18 -> Extract a slice from a list. Given two indices, i and k, the slice is the list 
+    containing the elements between the i'th and k'th element of the original list (both limits included).
+    Start counting the elements with 1.
+    Example in Haskell:
+
+    *Main> slice ['a','b','c','d','e','f','g','h','i','k'] 3 7
+    "cdefg"
+-}
+slice :: [a] -> Int -> Int -> [a]
+slice xs i k = let j = i - 1 in take (k - j) $ drop j xs
+
+slice' :: [a] -> Int -> Int -> [a]
+slice' xs i k = [x | (x,j) <- zip xs [1..k], i <= j]
+
+{-
+    * Problem 19 -> Rotate a list N places to the left. Hint: Use the predefined functions length and (++).
+    Examples in Haskell:
+
+    *Main> rotate ['a','b','c','d','e','f','g','h'] 3
+    "defghabc"
+     
+    *Main> rotate ['a','b','c','d','e','f','g','h'] (-2)
+    "ghabcdef"
+-}
+rotate :: [a] -> Int -> [a]
+rotate [] _ = []
+rotate xs 0 = xs
+rotate xs n
+    | n > 0 =
+        if n >= listLen then rotate xs (n - listLen)
+        else drop n xs ++ take n xs
+    | n < 0 =
+        if o >= listLen then rotate xs ((o - listLen) * (-1))
+        else slice xs (listLen - o + 1) listLen ++ take (listLen - o) xs
+    where listLen = length xs
+          o = abs n
