@@ -1,7 +1,7 @@
 {-
     @Author: Felipe Rabelo
     @Date: Nov 30 2017
-    @Last: Jan 03 2018
+    @Last: Jan 04 2018
 -}
 
 {-
@@ -14,6 +14,7 @@
 {- Imports used -}
 import qualified Data.List as DL
 import qualified Data.Vector as V
+import qualified System.Random as R
 
 {- Data types created -}
 data NestedList a = Elem a | List [NestedList a]
@@ -355,7 +356,37 @@ removeAt'' n xs = (xs !! (n - 1), take (n - 1) xs ++ drop n xs)
     "aXbcd"
 -}
 insertAt :: a -> [a] -> Int -> [a]
-insertAt e [] 0 = [e]
-insertAt _ [] _ = do error "insertAt: index too large"
-insertAt e list n = V.toList . V.take (n - 1) vector V.// [(n, e)] ++ V.drop n vector
-	where vector = V.fromList list
+insertAt e []     0 = [e]
+insertAt _ []     _ = []
+insertAt e (x:xs) 1 = e : x : xs
+insertAt e (x:xs) n = x : insertAt e xs (n - 1)
+
+{-
+    * Problem 22 -> Create a list containing all integers within a given range.
+    Example in Haskell:
+
+    Prelude> range 4 9
+    [4,5,6,7,8,9]
+-}
+range :: Int -> Int -> [Int]
+range a b = case bool of
+        True  -> do error "range: the initial value is greater than the final"
+        False -> [a..b]
+    where bool = a > b
+    
+{-
+    * Problem 23 -> Extract a given number of randomly selected elements from a list.
+    Example in Haskell:
+
+    Prelude System.Random>rnd_select "abcdefgh" 3 >>= putStrLn
+    eda
+-}
+rnd_select :: Show a => [a] -> Int -> IO ()
+rnd_select pool n = do
+    g <- R.newStdGen
+    let rndIndexs = take n $ R.randomRs (0, (length pool) - 1) g in print $ map (\i -> pool !! i) rndIndexs
+
+rnd_select' :: Show a => [a] -> Int -> IO [a]
+rnd_select' xs n = do
+    gen <- R.newStdGen
+    return $ take n [ xs !! x | x <- R.randomRs (0, (length xs) - 1) gen]
