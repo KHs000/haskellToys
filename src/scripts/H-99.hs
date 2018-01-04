@@ -322,9 +322,9 @@ rotate' xs n = take len . drop (n `mod` len) . cycle $ xs
     
 rotate'' :: [a] -> Int -> [a]
 rotate'' [] _ = []
-rotate'' x 0 = x
+rotate'' x 0  = x
 rotate'' x y
-  | y > 0 = rotate (tail x ++ [head x]) (y-1)
+  | y > 0     = rotate (tail x ++ [head x]) (y-1)
   | otherwise = rotate (last x : init x) (y+1)
   
 {-
@@ -335,13 +335,13 @@ rotate'' x y
     ('b',"acd")
 -}
 removeAt :: Int -> [a] -> (Maybe a, Maybe [a])
-removeAt _ [] = (Nothing, Nothing)
+removeAt _ []     = (Nothing, Nothing)
 removeAt 0 (x:xs) = (Just x, Just xs)
-removeAt n list = (Just $ list !! (n - 1), Just [x | (x, i) <- zip list [1..], i /= n])
+removeAt n list   = (Just $ list !! (n - 1), Just [x | (x, i) <- zip list [1..], i /= n])
 
 removeAt' :: Int -> [a] -> (a, [a])
 removeAt' k xs = case back of
-        [] -> error "removeAt: index too large"
+        []     -> error "removeAt: index too large"
         x:rest -> (x, front ++ rest)
   where (front, back) = splitAt (k - 1) xs
   
@@ -381,12 +381,52 @@ range a b = case bool of
     Prelude System.Random>rnd_select "abcdefgh" 3 >>= putStrLn
     eda
 -}
-rnd_select :: Show a => [a] -> Int -> IO ()
-rnd_select pool n = do
+rnd_select :: [a] -> Int -> IO [a]
+rnd_select _ 0 = return []
+rnd_select (x:xs) n =
+    do r <- R.randomRIO (0, (length xs))
+       if r < n
+           then do
+               rest <- rnd_select xs (n-1)
+               return (x : rest)
+           else rnd_select xs n
+
+rnd_select' :: Show a => [a] -> Int -> IO ()
+rnd_select' pool n = do
     g <- R.newStdGen
     let rndIndexs = take n $ R.randomRs (0, (length pool) - 1) g in print $ map (\i -> pool !! i) rndIndexs
 
-rnd_select' :: Show a => [a] -> Int -> IO [a]
-rnd_select' xs n = do
-    gen <- R.newStdGen
-    return $ take n [ xs !! x | x <- R.randomRs (0, (length xs) - 1) gen]
+{-
+    * Problem 24 -> Lotto: Draw N different random numbers from the set 1..M.
+    Example in Haskell:
+
+    Prelude System.Random>diff_select 6 49
+    Prelude System.Random>[23,1,17,33,21,37]
+-}
+diffSelect :: Int -> Int -> IO [Int]
+diffSelect n m = do
+  gen <- R.newStdGen
+  return . take n $ R.randomRs (1, m) gen
+   
+{-
+    * Problem 25 -> Generate a random permutation of the elements of a list.
+    Example in Haskell:
+
+    Prelude System.Random>rnd_permu "abcdef"
+    Prelude System.Random>"badcef"
+-}
+rnd_permu :: [a] -> IO [a]
+rnd_permu xs = rnd_select xs (length xs)
+
+{-
+    * Problem 26 -> Generate the combinations of K distinct objects chosen from the N elements of
+    a list. In how many ways can a committee of 3 be chosen from a group of 12 people? We all know
+    that there are C(12,3) = 220 possibilities (C(N,K) denotes the well-known binomial coefficients).
+    For pure mathematicians, this result may be great. But we want to really generate all the
+    possibilities in a list.
+    Example in Haskell:
+
+    > combinations 3 "abcdef"
+    ["abc","abd","abe",...]
+-}
+combinations :: Int -> [a] -> [[a]]
