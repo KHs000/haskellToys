@@ -1,14 +1,14 @@
 {-
     @Author: Felipe Rabelo
     @Date: Nov 30 2017
-    @Last: Jan 04 2018
+    @Last: Jan 05 2018
 -}
 
 {-
     Those are my solutions for the 99 problems to be solved in haskell available in
     https://wiki.haskell.org/H-99:_Ninety-Nine_Haskell_Problems
     
-    Currently solving problem: 21
+    Currently solving problem: 26
 -}
 
 {- Imports used -}
@@ -405,7 +405,7 @@ rnd_select' pool n = do
 -}
 diffSelect :: Int -> Int -> IO [Int]
 diffSelect n m = do
-  gen <- R.newStdGen
+  gen <- R.getStdGen
   return . take n $ R.randomRs (1, m) gen
    
 {-
@@ -429,4 +429,11 @@ rnd_permu xs = rnd_select xs (length xs)
     > combinations 3 "abcdef"
     ["abc","abd","abe",...]
 -}
-combinations :: Int -> [a] -> [[a]]
+combinations :: Eq a => Int -> [a] -> [[a]]
+combinations 0 _ = []
+combinations 1 (x:xs) = subCombinations 1 [x] xs
+combinations n xs = map (\x -> subCombinations n [x] (filter (/= x) xs)) xs
+
+subCombinations :: Eq a => Int -> [a] -> [a] -> [a]
+subCombinations 1 xs ys = map (\y -> xs ++ y) ys
+subCombinations n x (y:ys) = concatMap (\y -> subCombinations (n - 1) (x:y) (filter (/= y) ys)) ys
