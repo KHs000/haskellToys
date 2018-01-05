@@ -8,7 +8,7 @@
     Those are my solutions for the 99 problems to be solved in haskell available in
     https://wiki.haskell.org/H-99:_Ninety-Nine_Haskell_Problems
     
-    Currently solving problem: 26
+    Currently solving problem: 27
 -}
 
 {- Imports used -}
@@ -429,11 +429,18 @@ rnd_permu xs = rnd_select xs (length xs)
     > combinations 3 "abcdef"
     ["abc","abd","abe",...]
 -}
-combinations :: Eq a => Int -> [a] -> [[a]]
-combinations 0 _ = []
-combinations 1 (x:xs) = subCombinations 1 [x] xs
-combinations n xs = map (\x -> subCombinations n [x] (filter (/= x) xs)) xs
+combinations :: Int -> [a] -> [[a]]
+combinations 0 _  = [[]]
+combinations n xs = [ y:ys | y:xs' <- DL.tails xs
+                           , ys    <- combinations (n - 1) xs']
 
-subCombinations :: Eq a => Int -> [a] -> [a] -> [a]
-subCombinations 1 xs ys = map (\y -> xs ++ y) ys
-subCombinations n x (y:ys) = concatMap (\y -> subCombinations (n - 1) (x:y) (filter (/= y) ys)) ys
+{-
+    * Problem 27 -> Group the elements of a set into disjoint subsets.
+    a) In how many ways can a group of 9 people work in 3 disjoint subgroups of 2, 3 and 4 persons?
+    Write a function that generates all the possibilities and returns them in a list.
+    Example in Haskell:
+
+    P27> group [2,3,4] ["aldo","beat","carla","david","evi","flip","gary","hugo","ida"]
+    [[["aldo","beat"],["carla","david","evi"],["flip","gary","hugo","ida"]],...]
+    (altogether 1260 solutions)
+-}
