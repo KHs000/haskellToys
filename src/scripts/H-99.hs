@@ -8,7 +8,7 @@
     Those are my solutions for the 99 problems to be solved in haskell available in
     https://wiki.haskell.org/H-99:_Ninety-Nine_Haskell_Problems
     
-    Currently solving problem: 28
+    Currently solving problem: 33
 -}
 
 {- Imports used -}
@@ -488,3 +488,58 @@ lsort = DL.sortBy (O.comparing length)
 
 lfsort :: [[a]] -> [[a]]
 lfsort = concat . lsort . DL.groupBy ((==) `F.on` length) . lsort
+
+{-
+    * Problem 31 -> Determine whether a given integer number is prime.
+    Example in Haskell:
+
+    P31> isPrime 7
+    True
+-}
+isPrime :: Int -> Bool
+isPrime 2 = True
+isPrime 3 = True
+isPrime 5 = True
+isPrime 7 = True
+isPrime n = (n `mod` 2 /= 0) && (n `mod` 3 /= 0) && (n `mod` 5 /= 0) && (n `mod` 7 /= 0)
+
+isPrime' :: Int -> Bool
+isPrime' k = k > 1 &&
+   foldr (\p r -> p*p > k || k `rem` p /= 0 && r)
+      True primesTME
+
+primesTME = 2 : gaps 3 (join [[p*p,p*p+2*p..] | p <- primes'])
+  where
+    primes' = 3 : gaps 5 (join [[p*p,p*p+2*p..] | p <- primes'])
+    join  ((x:xs):t)        = x : DL.union xs (join (pairs t))
+    pairs ((x:xs):ys:t)     = (x : DL.union xs ys) : pairs t
+    gaps k xs@(x:t) | k==x  = gaps (k+2) t 
+                    | True  = k : gaps (k+2) xs
+                    
+{-
+    * Problem 32 -> Determine the greatest common divisor of two positive integer numbers.
+    Use Euclid's algorithm.
+    Example in Haskell:
+
+    [myGCD 36 63, myGCD (-3) (-6), myGCD (-3) 6]
+    [9,3,3]
+-}
+myGCD :: Int -> Int -> Int
+myGCD x y = if greaterNum `mod` smallerNum == 0 then x else myGCD fstDiff smallerNum
+    where greaterNum = if x > y then x else y
+          smallerNum = if x == greaterNum then y else x
+          fstDiff = greaterNum `mod` smallerNum
+
+myGCD' :: Int -> Int -> Int
+myGCD' a b
+      | b == 0     = abs a
+      | otherwise  = myGCD b (a `mod` b)
+      
+{-
+    * Problem 33 -> Determine whether two positive integer numbers are coprime. Two numbers
+    are coprime if their greatest common divisor equals 1.
+    Example in Haskell:
+
+    * coprime 35 64
+    True
+-}
