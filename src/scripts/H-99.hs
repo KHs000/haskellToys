@@ -1,20 +1,22 @@
 {-
     @Author: Felipe Rabelo
     @Date: Nov 30 2017
-    @Last: Jan 05 2018
+    @Last: Jan 08 2018
 -}
 
 {-
     Those are my solutions for the 99 problems to be solved in haskell available in
     https://wiki.haskell.org/H-99:_Ninety-Nine_Haskell_Problems
     
-    Currently solving problem: 27
+    Currently solving problem: 28
 -}
 
 {- Imports used -}
 import qualified Data.List as DL
 import qualified Data.Vector as V
 import qualified System.Random as R
+import qualified Data.Ord as O
+import qualified Data.Function as F
 
 {- Data types created -}
 data NestedList a = Elem a | List [NestedList a]
@@ -370,7 +372,7 @@ insertAt e (x:xs) n = x : insertAt e xs (n - 1)
 -}
 range :: Int -> Int -> [Int]
 range a b = case bool of
-        True  -> do error "range: the initial value is greater than the final"
+        True  -> error "range: the initial value is greater than the final"
         False -> [a..b]
     where bool = a > b
     
@@ -438,9 +440,51 @@ combinations n xs = [ y:ys | y:xs' <- DL.tails xs
     * Problem 27 -> Group the elements of a set into disjoint subsets.
     a) In how many ways can a group of 9 people work in 3 disjoint subgroups of 2, 3 and 4 persons?
     Write a function that generates all the possibilities and returns them in a list.
+    b) Generalize the above predicate in a way that we can specify a list of group sizes and the
+    predicate will return a list of groups.
+    
+    Note that we do not want permutations of the group members; i.e. ((ALDO BEAT) ...) is the same
+    solution as ((BEAT ALDO) ...). However, we make a difference between ((ALDO BEAT) (CARLA DAVID) ...)
+    and ((CARLA DAVID) (ALDO BEAT) ...).
     Example in Haskell:
 
     P27> group [2,3,4] ["aldo","beat","carla","david","evi","flip","gary","hugo","ida"]
     [[["aldo","beat"],["carla","david","evi"],["flip","gary","hugo","ida"]],...]
     (altogether 1260 solutions)
 -}
+group :: [Int] -> [a] -> [[[a]]]
+group [] = const [[]]
+group (n:ns) = concatMap (uncurry $ (. group ns) . map . (:)) . combination n
+
+combination :: Int -> [a] -> [([a],[a])]
+combination 0 xs     = [([],xs)]
+combination n []     = []
+combination n (x:xs) = ts ++ ds
+  where
+    ts = [ (x:ys,zs) | (ys,zs) <- combination (n-1) xs ]
+    ds = [ (ys,x:zs) | (ys,zs) <- combination  n    xs ]
+    
+{-
+    * Problem 28 -> Sorting a list of lists according to length of sublists.
+    a) We suppose that a list contains elements that are lists themselves. The
+    objective is to sort the elements of this list according to their length.
+    E.g. short lists first, longer lists later, or vice versa.
+    Example in Haskell:
+    
+    Prelude>lsort ["abc","de","fgh","de","ijkl","mn","o"]
+    Prelude>["o","de","de","mn","abc","fgh","ijkl"]
+    
+    b) Again, we suppose that a list contains elements that are lists themselves.
+    But this time the objective is to sort the elements of this list according to
+    their length frequency; i.e., in the default, where sorting is done ascendingly,
+    lists with rare lengths are placed first, others with a more frequent length come later.
+    Example in Haskell:
+
+    lfsort ["abc", "de", "fgh", "de", "ijkl", "mn", "o"]
+    ["ijkl","o","abc","fgh","de","de","mn"]
+-}
+lsort :: [[a]] -> [[a]]
+lsort = DL.sortBy (O.comparing length)
+
+lfsort :: [[a]] -> [[a]]
+lfsort = concat . lsort . DL.groupBy ((==) `F.on` length) . lsort
