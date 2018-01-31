@@ -1,22 +1,23 @@
 {-
     @Author: Felipe Rabelo
     @Date: Nov 30 2017
-    @Last: Jan 08 2018
+    @Last: Jan 31 2018
 -}
 
 {-
     Those are my solutions for the 99 problems to be solved in haskell available in
     https://wiki.haskell.org/H-99:_Ninety-Nine_Haskell_Problems
     
-    Currently solving problem: 33
+    Currently solving problem: 37
 -}
 
 {- Imports used -}
-import qualified Data.List as DL
-import qualified Data.Vector as V
-import qualified System.Random as R
-import qualified Data.Ord as O
 import qualified Data.Function as F
+import qualified Data.List     as DL
+import qualified Data.Ord      as O
+import qualified Data.Ratio    as DR
+import qualified Data.Vector   as V
+import qualified System.Random as R
 
 {- Data types created -}
 data NestedList a = Elem a | List [NestedList a]
@@ -532,8 +533,8 @@ myGCD x y = if greaterNum `mod` smallerNum == 0 then x else myGCD fstDiff smalle
 
 myGCD' :: Int -> Int -> Int
 myGCD' a b
-      | b == 0     = abs a
-      | otherwise  = myGCD b (a `mod` b)
+      | b == 0    = abs a
+      | otherwise = myGCD b (a `mod` b)
       
 {-
     * Problem 33 -> Determine whether two positive integer numbers are coprime. Two numbers
@@ -542,4 +543,70 @@ myGCD' a b
 
     * coprime 35 64
     True
+-}
+coprime :: Int -> Int -> Bool
+coprime a b
+        | inputGCD == 1 = True
+        | otherwise     = False
+    where inputGCD = myGCD a b
+    
+coprime' :: Int -> Int -> Bool
+coprime' a b = gcd a b == 1
+
+{-
+    * Problem 34 -> Calculate Euler's totient function phi(m). Euler's so-called totient function
+    phi(m) is defined as the number of positive integers r (1 <= r < m) that are coprime to m.
+    Example in Haskell:
+
+    * totient 10
+    4
+-}
+totient :: Int -> Int
+totient n = length [x | x <- [1..n], coprime x n]
+                 
+{-
+    * Problem 35 -> Determine the prime factors of a given positive integer. Construct a flat list
+    containing the prime factors in ascending order.
+    Example in Haskell:
+
+    > primeFactors 315
+    [3, 3, 5, 7]
+-}
+primeFactors :: Int -> [Int]
+primeFactors a = let (f, f1) = factorPairOf a
+                     f' = if prime f then [f] else primeFactors f
+                     f1' = if prime f1 then [f1] else primeFactors f1
+                 in f' ++ f1'
+ where
+ factorPairOf a = let f = head $ factors a
+                  in (f, a `div` f)
+ factors a    = filter (isFactor a) [2..a-1]
+ isFactor a b = a `mod` b == 0
+ prime a      = null $ factors a
+ 
+{-
+    * Problem 36 -> Determine the prime factors of a given positive integer. Construct a list
+    containing the prime factors and their multiplicity.
+    Example in Haskell:
+
+    *Main> prime_factors_mult 315
+    [(3,2),(5,1),(7,1)]
+-}
+prime_factors_mult :: Int -> [(Int, Int)]
+prime_factors_mult n = map swap $ encode $ primeFactors n
+    where
+        swap (x, y) = (y, x)
+
+{-
+    * Problem 37 -> Calculate Euler's totient function phi(m) (improved). See problem 34 for the definition
+    of Euler's totient function. If the list of the prime factors of a number m is known in the form of
+    problem 36 then the function phi(m) can be efficiently calculated as follows: Let ((p1 m1) (p2 m2) (p3 m3) ...)
+    be the list of prime factors (and their multiplicities) of a given number m. Then phi(m) can be calculated with
+    the following formula:
+    
+    phi(m) = (p1 - 1) * p1 ** (m1 - 1) * 
+         (p2 - 1) * p2 ** (m2 - 1) * 
+         (p3 - 1) * p3 ** (m3 - 1) * ...
+         
+    Note that a ** b stands for the b'th power of a.
 -}
