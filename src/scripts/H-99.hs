@@ -1,7 +1,7 @@
 {-
     @Author: Felipe Rabelo
     @Date: Nov 30 2017
-    @Last: Jan 31 2018
+    @Last: Feb 16 2018
 -}
 
 {-
@@ -497,15 +497,9 @@ lfsort = concat . lsort . DL.groupBy ((==) `F.on` length) . lsort
     P31> isPrime 7
     True
 -}
-isPrime :: Int -> Bool
-isPrime 2 = True
-isPrime 3 = True
-isPrime 5 = True
-isPrime 7 = True
-isPrime n = (n `mod` 2 /= 0) && (n `mod` 3 /= 0) && (n `mod` 5 /= 0) && (n `mod` 7 /= 0)
 
-isPrime' :: Int -> Bool
-isPrime' k = k > 1 &&
+isPrime :: Int -> Bool
+isPrime k = k > 1 &&
    foldr (\p r -> p*p > k || k `rem` p /= 0 && r)
       True primesTME
 
@@ -593,7 +587,7 @@ primeFactors a = let (f, f1) = factorPairOf a
     [(3,2),(5,1),(7,1)]
 -}
 prime_factors_mult :: Int -> [(Int, Int)]
-prime_factors_mult n = map swap $ encode $ primeFactors n
+prime_factors_mult n = map swap . encode $ primeFactors n
     where
         swap (x, y) = (y, x)
 
@@ -610,3 +604,47 @@ prime_factors_mult n = map swap $ encode $ primeFactors n
          
     Note that a ** b stands for the b'th power of a.
 -}
+totient2 :: Int -> Int
+totient2 m = product [(p - 1) * p ^ (c - 1) | (p, c) <- prime_factors_mult m]
+
+{-
+    * Problem 38 -> Compare the two methods of calculating Euler's totient function. Use the solutions of problems 34 
+    and 37 to compare the algorithms. Take the number of reductions as a measure for efficiency. Try to calculate
+    phi(10090) as an example.
+
+    (no solution required)
+-}
+
+{-
+    * Problem 39 -> A list of prime numbers. Given a range of integers by its lower and upper limit, construct a list 
+    of all prime numbers in that range.
+    Example in Haskell:
+    
+    P29> primesR 10 20
+    [11,13,17,19]
+-}
+primeR :: Int -> Int -> [Int]
+primeR a b = [x | x <- [a..b], isPrime x, x >= a, x <= b]
+
+{-
+    * Problem 40 -> Goldbach's conjecture. Goldbach's conjecture says that every positive even number greater than
+    2 is the sum of two prime numbers. Example: 28 = 5 + 23. It is one of the most famous facts in number theory
+    that has not been proved to be correct in the general case. It has been numerically confirmed up to very large
+    numbers (much larger than we can go with our Prolog system). Write a predicate to find the two prime numbers
+    that sum up to a given even integer.
+    Example in Haskell:
+
+    *goldbach 28
+    (5, 23)
+-}
+goldbach :: Int -> (Int, Int)
+goldbach m = goldbachHelper . primeR 1 m
+    where
+        goldbachHelper [] = (0, 0)
+        goldbachHelper xs
+            | (last xs * 2) < m = (0, 0)
+            | last possibleResults == m = (m - upperPrime, upperPrime)
+            | last possibleResults < m = goldbachHelper $ init xs
+            where
+                possibleResults = takeWhile (<= m) $ foldr (\num acc -> num + (m - last xs)) xs
+                upperPrime = last possibleResults
