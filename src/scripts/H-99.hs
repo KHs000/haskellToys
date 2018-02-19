@@ -1,14 +1,14 @@
 {-
     @Author: Felipe Rabelo
     @Date: Nov 30 2017
-    @Last: Feb 16 2018
+    @Last: Feb 19 2018
 -}
 
 {-
     Those are my solutions for the 99 problems to be solved in haskell available in
     https://wiki.haskell.org/H-99:_Ninety-Nine_Haskell_Problems
     
-    Currently solving problem: 37
+    Currently solving problem: 40
 -}
 
 {- Imports used -}
@@ -624,7 +624,7 @@ totient2 m = product [(p - 1) * p ^ (c - 1) | (p, c) <- prime_factors_mult m]
     [11,13,17,19]
 -}
 primeR :: Int -> Int -> [Int]
-primeR a b = [x | x <- [a..b], isPrime x, x >= a, x <= b]
+primeR a b = [x | x <- [a..b], isPrime x]
 
 {-
     * Problem 40 -> Goldbach's conjecture. Goldbach's conjecture says that every positive even number greater than
@@ -638,13 +638,14 @@ primeR a b = [x | x <- [a..b], isPrime x, x >= a, x <= b]
     (5, 23)
 -}
 goldbach :: Int -> (Int, Int)
-goldbach m = goldbachHelper . primeR 1 m
-    where
-        goldbachHelper [] = (0, 0)
-        goldbachHelper xs
-            | (last xs * 2) < m = (0, 0)
-            | last possibleResults == m = (m - upperPrime, upperPrime)
-            | last possibleResults < m = goldbachHelper $ init xs
-            where
-                possibleResults = takeWhile (<= m) $ foldr (\num acc -> num + (m - last xs)) xs
-                upperPrime = last possibleResults
+goldbach m = goldbachHelper m $ primeR 1 m
+
+goldbachHelper :: Int -> [Int] -> (Int, Int)
+goldbachHelper _ [] = (0, 0)
+goldbachHelper m xs =
+    let possibleResults = takeWhile (<= m) $ foldr (\num acc -> acc ++ (num + (m - last xs))) 0 xs
+        upperPrime = last possibleResults
+    in
+        | m > last xs * 2 = (0, 0)
+        | m == last possibleResults = (m - upperPrime, upperPrime)
+        | m < last possibleResults = goldbachHelper m $ init xs
