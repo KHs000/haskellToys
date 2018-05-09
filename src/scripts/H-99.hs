@@ -642,10 +642,10 @@ goldbach m = goldbachHelper m $ primeR 1 m
 
 goldbachHelper :: Int -> [Int] -> (Int, Int)
 goldbachHelper _ [] = (0, 0)
-goldbachHelper m xs =
-    let possibleResults = takeWhile (<= m) $ foldr (\num acc -> acc ++ (num + (m - last xs))) 0 xs
+goldbachHelper m xs
+    | m > last xs * 2 = (0, 0)
+    | m == last possibleResults = (m - upperPrime, upperPrime)
+    | m < last possibleResults = goldbachHelper m $ init xs
+    where
+        possibleResults = takeWhile (<= m) $ foldr (\num acc -> acc ++ (num + (m - (last xs)))) 0 xs
         upperPrime = last possibleResults
-    in
-        | m > last xs * 2 = (0, 0)
-        | m == last possibleResults = (m - upperPrime, upperPrime)
-        | m < last possibleResults = goldbachHelper m $ init xs
