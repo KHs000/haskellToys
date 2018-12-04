@@ -1,14 +1,14 @@
 {-
     @Author: Felipe Rabelo
     @Date: Nov 30 2017
-    @Last: Feb 19 2018
+    @Last: Dez 04 2018
 -}
 
 {-
     Those are my solutions for the 99 problems to be solved in haskell available in
     https://wiki.haskell.org/H-99:_Ninety-Nine_Haskell_Problems
     
-    Currently solving problem: 40
+    Currently solving problem: 41
 -}
 
 {- Imports used -}
@@ -638,14 +638,10 @@ primeR a b = [x | x <- [a..b], isPrime x]
     (5, 23)
 -}
 goldbach :: Int -> (Int, Int)
-goldbach m = goldbachHelper m $ primeR 1 m
+goldbach m = goldHelper m $ primeR 1 m
 
-goldbachHelper :: Int -> [Int] -> (Int, Int)
-goldbachHelper _ [] = (0, 0)
-goldbachHelper m xs
-    | m > last xs * 2 = (0, 0)
-    | m == last possibleResults = (m - upperPrime, upperPrime)
-    | m < last possibleResults = goldbachHelper m $ init xs
-    where
-        possibleResults = takeWhile (<= m) $ foldr (\num acc -> acc ++ (num + (m - (last xs)))) 0 xs
-        upperPrime = last possibleResults
+goldHelper :: Int -> [Int] -> (Int, Int)
+goldHelper _ [] = (0, 0)
+goldHelper m (x:xs)
+    | isPrime (m - x) = (x, m - x)
+    | otherwise       = goldHelper m xs
