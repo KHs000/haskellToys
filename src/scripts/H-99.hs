@@ -1,14 +1,14 @@
 {-
     @Author: Felipe Rabelo
     @Date: Nov 30 2017
-    @Last: Dez 04 2018
+    @Last: Dez 05 2018
 -}
 
 {-
     Those are my solutions for the 99 problems to be solved in haskell available in
     https://wiki.haskell.org/H-99:_Ninety-Nine_Haskell_Problems
     
-    Currently solving problem: 41
+    Currently solving problem: 46
 -}
 
 {- Imports used -}
@@ -17,6 +17,7 @@ import qualified Data.List     as DL
 import qualified Data.Ord      as O
 import qualified Data.Ratio    as DR
 import qualified Data.Vector   as V
+import qualified Control.Monad as M
 import qualified System.Random as R
 
 {- Data types created -}
@@ -645,3 +646,150 @@ goldHelper _ [] = (0, 0)
 goldHelper m (x:xs)
     | isPrime (m - x) = (x, m - x)
     | otherwise       = goldHelper m xs
+
+
+{-
+    * Problem 41 -> Given a range of integers by its lower and upper limit, print a list of all even numbers and
+    their Goldbach composition. In most cases, if an even number is written as the sum of two prime numbers, one
+    of them is very small. Very rarely, the primes are both bigger than say 50. Try to find out how many such cases
+    there are in the range 2..3000.
+    Example in Haskell:
+
+    *Exercises> goldbachList 9 20
+    [(3,7),(5,7),(3,11),(3,13),(5,13),(3,17)]
+    *Exercises> goldbachList' 4 2000 50
+    [(73,919),(61,1321),(67,1789),(61,1867)]
+-}
+goldbachList :: Int -> Int -> [(Int, Int)]
+goldbachList a b = map goldbach [x | x <- [a..b], even x]
+
+goldbachList':: Int -> Int -> Int -> [(Int, Int)]
+goldbachList' a b m = filter (\t -> fst t >= m) $ goldbachList a b
+
+{- 
+    At this point, the list jumps from problem 41 to problem 46. I guessing that's because some previous problems
+    had more than 1 part to it, so those ones actually counted as multiple exercises. From this point forward, I'll
+    not be commenting over when this kinda of situation happens again.
+-}
+
+{-
+    * Problem 46 -> Define predicates and/2, or/2, nand/2, nor/2, xor/2, impl/2 and equ/2 (for logical equivalence)
+    which succeed or fail according to the result of their respective operations; e.g. and(A,B) will succeed, if
+    and only if both A and B succeed. A logical expression in two variables can then be written as in the following
+    example: and(or(A,B),nand(A,B)). Now, write a predicate table/3 which prints the truth table of a given logical 
+    expression in two variables.
+    Example in Haskell:
+
+    > table (\a b -> (and' a (or' a b)))
+    True True True
+    True False True
+    False True False
+    False False False
+-}
+and'  a b = a && b
+or'   a b = a || b
+nand' a b = not (and' a b)
+nor'  a b = not (or' a b)
+xor'  a b = not (equ' a b)
+impl' a b = or' (not a) b
+equ'  a b = a == b
+
+table :: (Bool -> Bool -> Bool) -> IO ()
+table f = mapM_ putStrLn [show a ++ " " ++ show b ++ " " ++ show (f a b)
+                                | a <- [True, False], b <- [True, False]]
+
+{-
+    * Problem 47 -> Truth tables for logical expressions (2). Continue problem P46 by defining and/2, or/2, etc as 
+    being operators. This allows to write the logical expression in the more natural way, as in the example: A and 
+    (A or not B). Define operator precedence as usual; i.e. as in Java.
+    Example in Haskell:
+
+    > table2 (\a b -> a `and'` (a `or'` not b))
+    True True True
+    True False True
+    False True False
+    False False False
+-}
+infixl 4 `or'`
+infixl 6 `and'`
+
+{-
+    * Problem 48 -> Truth tables for logical expressions (3). Generalize problem P47 in such a way that the logical 
+    expression may contain any number of logical variables. Define table/2 in a way that table(List,Expr) prints the 
+    truth table for the expression Expr, which contains the logical variables enumerated in List.
+    Example in Haskell:
+
+    > tablen 3 (\[a,b,c] -> a `and'` (b `or'` c) `equ'` a `and'` b `or'` a `and'` c)
+    -- infixl 3 `equ'`
+    True  True  True  True
+    True  True  False True
+    True  False True  True
+    True  False False True
+    False True  True  True
+    False True  False True
+    False False True  True
+    False False False True
+-}
+infixl 4 `nor'`
+infixl 5 `xor'`
+infixl 6 `nand'`
+infixl 3 `equ'`
+ 
+tablen :: Int -> ([Bool] -> Bool) -> IO ()
+tablen n f = mapM_ putStrLn [toStr a ++ " => " ++ show (f a) | a <- args n]
+    where args n = M.replicateM n [True, False]
+          toStr  = unwords . map (\x -> show x ++ space x)
+          space True = "  "
+          space False = " "
+
+{-
+    * Problem 49 -> Gray codes. An n-bit Gray code is a sequence of n-bit strings constructed according to certain 
+    rules. Find out the construction rules and write a predicate with the following specification:
+    
+    % gray(N,C) :- C is the N-bit Gray code
+
+    Can you apply the method of "result caching" in order to make the predicate more efficient, when it is to be 
+    used repeatedly?
+    Example in Haskell:
+
+    P49> gray 3
+    ["000","001","011","010","110","111","101","100"]
+-}
+gray :: Int -> [String]
+gray 0 = [""]
+gray n = foldr (\s acc -> ("0" ++ s):("1" ++ s):acc) [] $ gray (n-1)
+
+{-
+    * Problem 50 -> Huffman codes. We suppose a set of symbols with their frequencies, given as a list of fr(S,F) terms. 
+    Example: [fr(a,45),fr(b,13),fr(c,12),fr(d,16),fr(e,9),fr(f,5)]. Our objective is to construct a list hc(S,C) terms, 
+    where C is the Huffman code word for the symbol S. In our example, the result could be Hs = [hc(a,'0'), hc(b,'101'), 
+    hc(c,'100'), hc(d,'111'), hc(e,'1101'), hc(f,'1100')] [hc(a,'01'),...etc.]. The task shall be performed by the predicate 
+    huffman/2 defined as follows:
+
+    % huffman(Fs,Hs) :- Hs is the Huffman code table for the frequency table Fs
+
+    Example in Haskell:
+
+    *Exercises> huffman [('a',45),('b',13),('c',12),('d',16),('e',9),('f',5)]
+    [('a',"0"),('b',"101"),('c',"100"),('d',"111"),('e',"1101"),('f',"1100")]
+-}
+huffman :: [(Char, Int)] -> [(Char, [Char])]
+huffman x = reformat $ huffman_combine $ resort $ morph x
+    where
+        morph x = [ ([[]],[c],n) | (c,n) <- x ]
+        resort x = DL.sortBy (\(_,_,a) (_,_,b) -> compare a b) x
+ 
+        reformat (x,y,_) = DL.sortBy (\(a,b) (x,y) -> compare (length b) (length y)) $ zip y x
+ 
+        huffman_combine (x:[]) = x
+        huffman_combine (x:xs) = huffman_combine $ resort ( (combine_elements x (head xs)) : (tail xs) )
+            where
+                combine_elements (a,b,c) (x,y,z) = ( (map ('0':) a) ++ (map ('1':) x), b ++ y, c+z)
+
+{-
+    * Problem 55 -> Construct completely balanced binary trees. In a completely balanced binary tree, the following property 
+    holds for every node: The number of nodes in its left subtree and the number of nodes in its right subtree are almost 
+    equal, which means their difference is not greater than one.Write a function cbal-tree to construct completely balanced 
+    binary trees for a given number of nodes. The predicate should generate all solutions via backtracking. Put the letter 
+    'x' as information into all nodes of the tree.
+-}
